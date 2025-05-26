@@ -1,0 +1,118 @@
+openapi: 3.0.3
+info:
+  title: BCNC Price API
+  version: 1.0.0
+  description: API para consultar tarifas aplicables
+
+paths:
+  /api/prices:
+    get:
+      summary: Obtener precio por fecha, producto y cadena
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: brandId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: X-Request-ID
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-Correlation-ID
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Precio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponse'
+              examples:
+                ejemploPrecio:
+                  summary: Ejemplo exitoso de respuesta
+                  value:
+                    product: "Product 35455"
+                    brand: "ZARA"
+                    priceList: "Afternoon promo"
+                    startDate: "2020-06-14T15:00:00"
+                    endDate: "2020-06-14T18:30:00"
+                    price: 25.45
+                    currency: "EUR"
+        '404':
+          description: Precio no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  error:
+                    type: string
+              examples:
+                ejemploError:
+                  summary: Precio no encontrado
+                  value:
+                    message: "No applicable price found."
+                    timestamp: "2025-05-23T22:18:42.9828077-05:00"
+                    error: "NOT_FOUND"
+        '500':
+          description: Error interno inesperado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  error:
+                    type: string
+              examples:
+                ejemploError500:
+                  summary: Error interno del servidor
+                  value:
+                    message: "message"
+                    timestamp: "2025-05-23T22:22:37.3330481-05:00"
+                    error: "INTERNAL_ERROR"
+components:
+  schemas:
+    PriceResponse:
+      type: object
+      properties:
+        product:
+          type: string
+        brand:
+          type: string
+        priceList:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        price:
+          type: number
+        currency:
+          type: string
