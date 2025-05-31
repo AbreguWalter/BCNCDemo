@@ -1,71 +1,70 @@
 package com.bcnc.princing.demo.application.serviceImpl;
 
-import com.bcnc.princing.demo.domain.model.Price;
-import com.bcnc.princing.demo.domain.port.PriceRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import com.bcnc.princing.demo.application.service.BrandService;
+import com.bcnc.princing.demo.application.service.CurrencyService;
+import com.bcnc.princing.demo.application.service.PriceListService;
+import com.bcnc.princing.demo.application.service.ProductService;
+import com.bcnc.princing.demo.domain.model.Price;
+import com.bcnc.princing.demo.domain.port.PriceRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PriceServiceImplTest {
 
-  @Mock
-  private PriceRepository priceRepository;
+    @Test
+    void givenMultiplePricesWhenGetApplicablePriceThenReturnsWithHighestPriority() {
+        final PriceRepository repo = Mockito.mock(PriceRepository.class);
+        final BrandService repo1 = Mockito.mock(BrandService.class);
+        final ProductService repo2 = Mockito.mock(ProductService.class);
+        final PriceListService repo3 = Mockito.mock(PriceListService.class);
+        final CurrencyService repo4 = Mockito.mock(CurrencyService.class);
 
-  @InjectMocks
-  private PriceServiceImpl priceService;
+        final PriceServiceImpl service = new PriceServiceImpl(repo, repo1, repo2, repo3, repo4);
 
-  @BeforeEach
-  void setUp() {
-    MockitoAnnotations.openMocks(this);
-  }
+        final LocalDateTime searchDate = LocalDateTime.of(2020, 6, 14, 16, 0);
+        final Price lowPriority = new Price("ZARA", searchDate.minusHours(2), searchDate.plusHours(2), 1,
+                35455L, 0, new BigDecimal("20.00"), "EUR");
+        final Price highPriority = new Price("ZARA", searchDate.minusHours(1), searchDate.plusHours(1), 1,
+                35455L, 2, new BigDecimal("25.45"), "EUR");
 
-  @Test
-  void givenDateTimeProductAndBrand_whenPriceExists_thenReturnIt() {
-    // Given
-    LocalDateTime dateTime = LocalDateTime.of(2020, 6, 14, 16, 0);
-    Long productId = 35455L;
-    String brand = "ZARA";
+        Mockito.when(repo.findByProductIdAndBrandId(35455L, 1L))
+                .thenReturn(List.of(lowPriority, highPriority));
 
-    Price expectedPrice = new Price(
-        brand,
-        dateTime.minusHours(1),
-        dateTime.plusHours(1),
-        "Afternoon promo",
-        "Product 35455",
-        1,
-        new BigDecimal("25.45"),
-        "EUR"
-    );
+        // Mock servicios dependientes para que todo esté "enabled"
+        Mockito.when(repo1.isBrandEnabled(1L)).thenReturn(true);
+        Mockito.when(repo2.isProductEnabled(35455L)).thenReturn(true);
+        Mockito.when(repo3.isPriceListEnabled(1)).thenReturn(true);
+        Mockito.when(repo4.isCurrencyEnabled("EUR")).thenReturn(true);
 
-    when(priceRepository.findValidPriceAtDate(dateTime, productId, 1L))
-        .thenReturn(Optional.of(expectedPrice));
+        final Optional<Price> result = service.getApplicablePrice(searchDate, 35455L, 1L);
 
-    // When
-    Optional<Price> result = priceService.getApplicablePrice(dateTime, productId, 1L);
+        assertThat(result).isPresent();
+        assertThat(result.get().priority()).isEqualTo(2);
+        assertThat(result.get().price()).isEqualTo(new BigDecimal("25.45"));
+    }
 
-    // Then
-    assertTrue(result.isPresent());
-    assertEquals(expectedPrice, result.get());
-  }
+    @Test
+    void whenNoPriceAppliesThenReturnsEmpty() {
+        final PriceRepository repo = Mockito.mock(PriceRepository.class);
+        final BrandService repo1 = Mockito.mock(BrandService.class);
+        final ProductService repo2 = Mockito.mock(ProductService.class);
+        final PriceListService repo3 = Mockito.mock(PriceListService.class);
+        final CurrencyService repo4 = Mockito.mock(CurrencyService.class);
 
-  @Test
-  void givenDateTimeProductAndBrand_whenNoPrice_thenReturnEmpty() {
-    // Given
-    LocalDateTime dateTime = LocalDateTime.of(2020, 6, 14, 16, 0);
-    when(priceRepository.findValidPriceAtDate(dateTime, 35455L, 1L))
-        .thenReturn(Optional.empty());
+        final PriceServiceImpl service = new PriceServiceImpl(repo, repo1, repo2, repo3, repo4);
 
-    // When
-    Optional<Price> result = priceService.getApplicablePrice(dateTime, 35455L, 1L);
+        Mockito.when(repo.findByProductIdAndBrandId(35455L, 1L)).thenReturn(List.of());
 
-    // Then
-    assertTrue(result.isEmpty());
-  }
+        final Optional<Price> result = service.getApplicablePrice(LocalDateTime.now(), 35455L, 1L);
+
+        assertThat(result).isEmpty();
+    }
 }

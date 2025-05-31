@@ -13,8 +13,8 @@ public class PriceMapper {
             entity.getBrand().getName(),
             entity.getStartDate(),
             entity.getEndDate(),
-            entity.getPriceList().getName(),
-            entity.getProduct().getName(),
+            entity.getPriceList().getId(),
+            entity.getProduct().getId(),
             entity.getPriority(),
             entity.getPrice(),
             entity.getCurrency().getSymbol()
