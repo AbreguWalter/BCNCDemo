@@ -10,9 +10,9 @@ public class PriceResponseMapper {
 
     public PriceResponse toResponse(Price price) {
         return new PriceResponse(
-            price.product(),
+            price.productId(),
             price.brand(),
-            price.priceList(),
+            price.priceListId(),
             price.startDate(),
             price.endDate(),
             price.price(),

@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record PriceResponse(
-        String product,
+        Long product,
         String brand,
-        String priceList,
+        Integer priceList,
         LocalDateTime startDate,
         LocalDateTime endDate,
         BigDecimal price,

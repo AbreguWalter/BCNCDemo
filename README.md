@@ -1,94 +1,119 @@
-# 🧠 BCNC Pricing API
 
-API REST desarrollada como solución a la prueba técnica de BCNC Group, diseñada para consultar tarifas aplicables a productos de la marca ZARA en una fecha y hora determinadas. Implementada en Java 17 con Spring Boot 3.5.0, aplicando arquitectura hexagonal, programación funcional, buenas prácticas de testing, validaciones HTTP y documentación con OpenAPI 3.0.
+# BCNC Pricing API
 
----
+API REST construida como solución a la prueba técnica de BCNC Group. Permite consultar el precio aplicable de un producto ZARA en una fecha y hora determinada, considerando reglas de prioridad de tarifas.
 
-## 🚀 Tecnologías y dependencias principales
-
-- Java 17.0.15
-- Spring Boot 3.5.0
-- Spring Web, Spring Data JPA
-- H2 in-memory database
-- Lombok
-- Checkstyle (custom rules)
-- JaCoCo (cobertura de tests)
-- Springdoc OpenAPI 3.0
-- JUnit 5 + Mockito
-- Gradle 8.12.1
+> 💡 Desarrollado con enfoque profesional: Java 17, Spring Boot 3.5, arquitectura hexagonal, principios SOLID, validaciones HTTP, cobertura de tests, documentación Swagger y buenas prácticas de código limpio.
 
 ---
 
-## 📐 Arquitectura hexagonal
+## ⚙️ Tecnologías utilizadas y justificación
 
-El proyecto está estructurado siguiendo arquitectura hexagonal (ports & adapters):
+El proyecto utiliza un stack moderno pensado para máxima mantenibilidad y facilidad de pruebas.  
+Cada tecnología fue seleccionada para cumplir un rol concreto y aportar valor al desarrollo profesional de APIs:
 
+
+| Tecnología                | Justificación                                                                 |
+|---------------------------|------------------------------------------------------------------------------|
+| Java 17                   | Versión moderna, estable y compatible con el ecosistema Spring.             |
+| Spring Boot 3.5.0         | Framework robusto para construir APIs REST de forma rápida y segura.       |
+| Spring Data JPA           | Acceso a datos declarativo usando entidades y repositorios.                 |
+| H2 Database (in-memory)   | Base de datos embebida ideal para testing y validación de lógica.           |
+| Lombok                    | Reduce el código boilerplate (constructores, getters, etc.).                |
+| Checkstyle + custom rules | Asegura estilo de código uniforme y legible.                                |
+| JaCoCo                    | Generación de reporte de cobertura de tests.                                |
+| Springdoc OpenAPI 3.0     | Documentación interactiva vía Swagger UI.                                   |
+| JUnit 5 + Mockito         | Frameworks modernos y populares para testing unitario y de integración.     |
+| Gradle 8.12               | Sistema de construcción flexible y rápido para gestionar dependencias.      |
+
+---
+
+## 🧠 Justificación de decisiones técnicas
+
+Las principales decisiones técnicas se orientaron a la mantenibilidad, facilidad de pruebas y desacoplamiento:
+
+- **Arquitectura hexagonal**: permite separar completamente el dominio de la infraestructura. Esto facilita pruebas, extensibilidad y mantenibilidad.
+- **DTOs y mappers explícitos**: desacoplan el modelo interno del contrato externo, facilitando el control del API.
+- **Validaciones y manejo de errores personalizados**: se gestionan errores 404, 500 con cuerpos claros y trazables.
+- **Configuración de seguridad con headers estándar**: previene vulnerabilidades comunes (CSP, Referrer, Permissions Policy).
+- **Cobertura de tests y reportes**: asegura robustez del servicio y permite validar las reglas de negocio propuestas.
+- **Documentación OpenAPI**: define contrato claro, con ejemplos de request/response y posibles errores.
+
+---
+
+## 🧱 Explicación de la arquitectura
+
+La solución sigue una **arquitectura hexagonal (Ports & Adapters)**, que desacopla estrictamente la lógica de negocio (dominio y casos de uso) de los detalles técnicos (API, repositorios, mapeadores, validaciones).
+
+Este diseño promueve el aislamiento de las reglas de negocio, permite el testing sencillo de cada componente y facilita la futura integración de nuevas fuentes de datos o interfaces (REST, CLI, mensajería, etc.), sin afectar el core del dominio.
+
+El proyecto está dividido en 3 grandes capas siguiendo **arquitectura hexagonal**:
 ```
-com.bcnc.princing.demo
-├── application → lógica de negocio (casos de uso)
+📦 com.bcnc.princing.demo
+├── 🔁 application → Casos de uso de negocio
 │ └── service
 │ └── serviceImpl
-├── config → configuración global, manejo de errores, seguridad
-├── domain → modelo de dominio (Price)
-│ └── model
-│ └── port → interfaz de repositorio (puerto)
-├── infrastructure → infraestructura externa
-│ ├── adapter → implementación de puertos (repositorio JPA)
-│ ├── controller → endpoints REST
-│ │ └── dto → objetos de transporte
-│ ├── entity → entidades JPA persistidas
-│ └── mapper → conversores
-└── DemoPricingApplication.java
+├── 🧠 domain → Modelo del dominio puro (Price)
+│       └── model → record Price
+│       └── port → Interfaz PriceRepository (puerto)
+├── 🌐 infrastructure → Adapters externos
+│ ├── controller → REST controller (entrada)
+│ │     └── dto → PriceResponse DTO
+│ ├── adapter → Implementación de puerto con JPA
+│ │     └── repository → DatasRepository de las entidadess
+│ ├── entity → Entidades JPA (PriceEntity, etc.)
+│ └── mapper → Entidades mappers
+├── ⚙️ config → Manejo de errores, seguridad, propiedades
+└── 🚀 DemoPricingApplication.java
 ```
+
+> Este diseño desacopla completamente la lógica de negocio del acceso a datos y los detalles técnicos de entrega.
 
 ---
 
-## 🧪 Test coverage
+## 🧪 Tests y cobertura
 
-Se cubren tests unitarios y de integración para:
+Se implementaron tests en cada capa del sistema:
 
-- `PriceServiceImpl` (servicio)
-- `PriceRepositoryAdapter` (adaptador)
-- `PriceController` (MockMvc + mock de `PriceService`)
-- `SpringDataPriceRepository` (con `@DataJpaTest` y H2)
+- `PriceServiceImpl` con reglas de negocio.
+- `PriceRepositoryAdapter` validando mapeo y repositorio.
+- `SpringDataPriceRepository` usando `@DataJpaTest`.
+- `PriceController` con `@WebMvcTest` y MockMvc.
+- **5 pruebas funcionales obligatorias** con fechas del enunciado.
 
-Además, se han desarrollado los **5 tests funcionales exigidos** por la prueba para:
-
-1. 14/06 a las 10:00
-2. 14/06 a las 16:00
-3. 14/06 a las 21:00
-4. 15/06 a las 10:00
-5. 16/06 a las 21:00
+Cobertura verificada con JaCoCo y reportada en HTML (`build/reports/jacoco/test/html/index.html`).
 
 ---
 
 ## 📄 Documentación OpenAPI
 
-Se define el contrato en formato `openapi.yaml`, compatible con Swagger UI. Contiene:
+El contrato está definido en `openapi.yaml` compatible con Swagger UI.
 
-- Endpoint `/api/prices`
-- Headers requeridos (`X-Request-ID`, `X-Correlation-ID`)
-- Ejemplos `200`, `404`, `500` documentados
+- Parámetros y headers descritos
+- Ejemplos de respuestas `200`, `404`, `500`
 - Esquema `PriceResponse`
 
-Para visualizarla localmente:
+---
+
+## ▶️ Ejecución local
+
+1. Clonar el proyecto:
 ```bash
-http://localhost:8080/swagger-ui/index.html
+  git clone https://github.com/tu_usuario/bcnc-pricing-api.git
+  cd bcnc-pricing-api
 ```
 
----
-
-## 🔧 Configuración de estilo y calidad
-
-- `checkstyle.xml`: validaciones de estilo (nombres, indentación, braces, imports)
-- `jacocoTestReport`: cobertura generada al correr los tests
-- `build.gradle`: incluye configuración de OpenAPI, Checkstyle, JaCoCo y Lombok
-
----
+2. Ejecutar aplicación:
+```bash
+  ./gradlew bootRun
+```
 
 ## ⚙️ Endpoints disponibles
 
-### `GET /api/prices`
+### `GET /api/v1/prices`
+
+- http://localhost:8080/api/v1/prices?date=2020-06-14T12:00:00&productId=35455&brandId=1
+
 Consulta precio aplicable
 
 #### Parámetros
@@ -102,6 +127,8 @@ Consulta precio aplicable
 - `X-Request-ID` (requerido) - abc123
 - `X-Correlation-ID` (requerido) - trace-001
 
+## 📌 Notas técnicas
+
 #### Ejemplo de respuesta `200`
 ```json
 {
@@ -111,23 +138,18 @@ Consulta precio aplicable
   "startDate": "2020-06-14T15:00:00",
   "endDate": "2020-06-14T18:30:00",
   "price": 25.45,
-  "currency": "EUR"
+  "currency": "EUR",
+  }
+```
+
+Las respuestas de error siguen el estándar:
+
+```json
+{
+    "message": "No applicable price found.",
+    "timestamp": "2025-05-23T22:18:42.9828077-05:00",
+    "error": "NOT_FOUND"
 }
-```
-
----
-
-## ▶️ Ejecución local
-
-1. Clona el repositorio
-2. Ejecuta desde terminal:
-```bash
-./gradlew bootRun
-```
-
-3. API estará disponible en:
-```bash
-http://localhost:8080/api/prices
 ```
 
 ---
@@ -135,27 +157,49 @@ http://localhost:8080/api/prices
 ## 🧪 Ejecutar pruebas
 
 ```bash
-./gradlew test
-./gradlew jacocoTestReport
-```
-
-> El reporte HTML se genera en `build/reports/jacoco/test/html/index.html`
-
----
-
-## 📌 Notas técnicas
-
-- Las respuestas de error siguen el estándar:
-```json
-{
-  "message": "No applicable price found.",
-  "timestamp": "2025-05-23T22:18:42.9828077-05:00",
-  "error": "NOT_FOUND"
-}
+    ./gradlew test
+    ./gradlew jacocoTestReport
 ```
 
 ---
+
+## 🔧 Configuración de estilo y calidad
+
+- `checkstyle.xml`: validaciones de estilo (nombres, indentación, braces, imports)
+- `jacocoTestReport`: cobertura generada al correr los tests
+- `build.gradle`: incluye configuración de OpenAPI, Checkstyle, JaCoCo y Lombok
+
+---
+
+## 📦 Build & calidad
+
+- `checkstyle.xml` con reglas personalizadas.
+- `jacocoTestReport` con cobertura.
+- `build.gradle` define dependencias y plugins.
+
+---
+
+## Adicionales
+
+- Se coloco 3 campos adicionales en las tablas para auditoria:
+```
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP,
+  enabled BIT DEFAULT 0
+```
+- Se genero validaciones en las consultas a base de datos para saber si el registro
+estaba activo
+```
+(enabled = 1)
+```
+- Se aplico spring seurity para validar que viajen 2 cabecezar
+
+```
+    X-Request-ID (requerido) - abc123
+    X-Correlation-ID (requerido) - trace-001
+```
 
 ## 🙋‍♂️ Autor
 
-Desarrollado por Walter Abregu Tinoco como parte del proceso de selección para BCNC Group.
+Desarrollado por **Walter Abregu Tinoco**
+Para proceso técnico de **BCNC Group**

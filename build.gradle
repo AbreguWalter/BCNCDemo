@@ -61,4 +61,5 @@ tasks.jacocoTestReport {
 checkstyle {
     configFile = file("checkstyle.xml")
     toolVersion = "10.12.1"
+    sourceSets = [sourceSets.main]
 }

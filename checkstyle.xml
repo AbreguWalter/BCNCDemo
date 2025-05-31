@@ -22,6 +22,7 @@
         <module name="UnusedImports"/>
         <module name="RedundantImport"/>
         <module name="ImportOrder">
+            <property name="option" value="top"/>
             <property name="ordered" value="true"/>
             <property name="groups" value="java, javax, jakarta, org, com"/>
             <property name="separated" value="true"/>

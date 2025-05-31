@@ -1,12 +1,12 @@
 package com.bcnc.princing.demo.infrastructure.adapter;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
 import com.bcnc.princing.demo.domain.model.Price;
 import com.bcnc.princing.demo.domain.port.PriceRepository;
+import com.bcnc.princing.demo.infrastructure.adapter.repository.SpringDataPriceRepository;
 import com.bcnc.princing.demo.infrastructure.mapper.PriceMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -19,17 +19,14 @@ public class PriceRepositoryAdapter implements PriceRepository {
 
     private final SpringDataPriceRepository jpaRepo;
 
-    private final PriceMapper priceMapper;
+    private final PriceMapper mapper; // Asumiendo que tienes un PriceMapper
 
     @Override
-    public Optional<Price> findValidPriceAtDate(LocalDateTime startOfDay, Long productId, Long brandId) {
-        log.debug("Buscando precios para producto {}, marca {}, fecha {}", productId, brandId, startOfDay);
-
-        return jpaRepo
-            .findApplicablePrice(startOfDay, productId, brandId)
+    public List<Price> findByProductIdAndBrandId(Long productId, Long brandId) {
+        log.debug("Buscando precios para producto {}, marca {}", productId, brandId);
+        return jpaRepo.findByProductIdAndBrandIdAndEnabledTrue(productId, brandId)
             .stream()
-            .filter(entity -> entity.getStartDate().toLocalDate().equals(startOfDay.toLocalDate()))
-            .findFirst()
-            .map(priceMapper::toDomain);
+            .map(mapper::toDomain)
+            .toList();
     }
 }

@@ -1,8 +1,12 @@
 package com.bcnc.princing.demo.infrastructure.controller;
 
-import com.bcnc.princing.demo.application.service.PriceService;
-import com.bcnc.princing.demo.domain.model.Price;
-import org.junit.jupiter.api.BeforeEach;
+import java.math.BigDecimal;
+import java.net.Inet4Address;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,156 +17,249 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
+import com.bcnc.princing.demo.TestConfig.NoSecurityTestConfig;
+import com.bcnc.princing.demo.application.service.PriceService;
+import com.bcnc.princing.demo.domain.model.Price;
+import com.bcnc.princing.demo.infrastructure.mapper.PriceResponseMapper;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PriceController.class)
-@Import(PriceControllerTest.MockConfig.class)
-class PriceControllerTest {
-
-  @Autowired
-  private MockMvc mockMvc;
-
-  @Autowired
-  private PriceService priceService; // este es el @Bean mockeado
-
-  @TestConfiguration
-  static class MockConfig {
+@TestConfiguration
+class MockServiceConfig {
     @Bean
     public PriceService priceService() {
-      return Mockito.mock(PriceService.class);
+        return Mockito.mock(PriceService.class);
     }
-  }
-
-  @BeforeEach
-  void setup() {
-    Mockito.reset(priceService);
-  }
-
-  @Test
-  void givenValidParams_whenPriceFound_thenReturnsOk() throws Exception {
-    // Given
-    LocalDateTime dateTime = LocalDateTime.of(2020, 6, 14, 16, 0);
-    String brand = "ZARA";
-
-    Price expectedPrice = new Price(
-        brand,
-        dateTime.minusHours(1),
-        dateTime.plusHours(1),
-        "Afternoon promo",
-        "Product 35455",
-        1,
-        new BigDecimal("25.45"),
-        "EUR"
-    );
-
-    Mockito.when(priceService.getApplicablePrice(dateTime, 35455L, 1L))
-        .thenReturn(Optional.of(expectedPrice));
-
-    // When & Then
-    mockMvc.perform(get("/api/prices")
-            .param("date", "2020-06-14T16:00:00")
-            .param("productId", "35455")
-            .param("brandId", "1")
-            .header("X-Request-ID", "test-req")
-            .header("X-Correlation-ID", "test-corr")
-            .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.product").value("Product 35455"))
-        .andExpect(jsonPath("$.brand").value("ZARA"))
-        .andExpect(jsonPath("$.priceList").value("Afternoon promo"))
-        .andExpect(jsonPath("$.price").value(25.45))
-        .andExpect(jsonPath("$.currency").value("EUR"));
-  }
-
-  @Test
-  void givenValidParams_whenNoPriceFound_thenReturns404() throws Exception {
-    // Given
-    LocalDateTime date = LocalDateTime.of(2020, 6, 14, 16, 0);
-
-    Mockito.when(priceService.getApplicablePrice(eq(date), eq(35455L), eq(1L)))
-        .thenReturn(Optional.empty());
-
-    // When & Then
-    mockMvc.perform(get("/api/prices")
-            .param("date", "2020-06-14T16:00:00")
-            .param("productId", "35455")
-            .param("brandId", "1"))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.error").value("NOT_FOUND"));
-  }
-
-  @Test
-  void givenJune14At10_whenGetPrice_thenReturnBasePrice() throws Exception {
-    LocalDateTime date = LocalDateTime.of(2020, 6, 14, 10, 0);
-    setupMockForTime(date, "Base price list", 35.50);
-
-    performAndValidate(date, "Base price list", 35.50);
-  }
-
-  @Test
-  void givenJune14At16_whenGetPrice_thenReturnAfternoonPromo() throws Exception {
-    LocalDateTime date = LocalDateTime.of(2020, 6, 14, 16, 0);
-    setupMockForTime(date, "Afternoon promo", 25.45);
-
-    performAndValidate(date, "Afternoon promo", 25.45);
-  }
-
-  @Test
-  void givenJune14At21_whenGetPrice_thenReturnBasePrice() throws Exception {
-    LocalDateTime date = LocalDateTime.of(2020, 6, 14, 21, 0);
-    setupMockForTime(date, "Base price list", 35.50);
-
-    performAndValidate(date, "Base price list", 35.50);
-  }
-
-  @Test
-  void givenJune15At10_whenGetPrice_thenReturnMorningPromo() throws Exception {
-    LocalDateTime date = LocalDateTime.of(2020, 6, 15, 10, 0);
-    setupMockForTime(date, "Morning promo", 30.50);
-
-    performAndValidate(date, "Morning promo", 30.50);
-  }
-
-  @Test
-  void givenJune16At21_whenGetPrice_thenReturnEveningPromo() throws Exception {
-    LocalDateTime date = LocalDateTime.of(2020, 6, 16, 21, 0);
-    setupMockForTime(date, "Evening promo", 38.95);
-
-    performAndValidate(date, "Evening promo", 38.95);
-  }
-
-  private void setupMockForTime(LocalDateTime date, String priceListName, double priceValue) {
-    Price price = new Price(
-        "ZARA",
-        date.minusHours(1),
-        date.plusHours(1),
-        priceListName,
-        "Product 35455",
-        1,
-        BigDecimal.valueOf(priceValue),
-        "EUR"
-    );
-    Mockito.when(priceService.getApplicablePrice(date, 35455L, 1L))
-        .thenReturn(Optional.of(price));
-  }
-
-  private void performAndValidate(LocalDateTime date, String expectedPriceList, double expectedPrice) throws Exception {
-    mockMvc.perform(get("/api/prices")
-            .param("date", date.toString())
-            .param("productId", "35455")
-            .param("brandId", "1")
-            .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.product").value("Product 35455"))
-        .andExpect(jsonPath("$.brand").value("ZARA"))
-        .andExpect(jsonPath("$.priceList").value(expectedPriceList))
-        .andExpect(jsonPath("$.price").value(expectedPrice))
-        .andExpect(jsonPath("$.currency").value("EUR"));
-  }
 }
+
+@WebMvcTest(controllers = PriceController.class)
+@Import({PriceResponseMapper.class, MockServiceConfig.class, NoSecurityTestConfig.class})
+class PriceControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private PriceService priceService;
+
+    private static final Long PRODUCT_ID = 35455L;
+
+    private static final Long BRAND_ID = 1L;
+
+    private static final String BRAND = "ZARA";
+
+    private static final String CURRENCY = "EUR";
+
+    private Price buildPrice(
+            final String brand,
+            final LocalDateTime startDate,
+            final LocalDateTime endDate,
+            final int priceList,
+            final Long productId,
+            final int priority,
+            final BigDecimal price,
+            final String currency
+    ) {
+        return new Price(
+                brand,
+                startDate,
+                endDate,
+                priceList,
+                productId,
+                priority,
+                price,
+                currency
+        );
+    }
+
+    @Nested
+    @DisplayName("Functional API Tests")
+    class FunctionalTests {
+
+        @Test
+        @DisplayName("Test 1: 14/06 10:00")
+        void test1RequestAt10Am14June() throws Exception {
+            final LocalDateTime searchDate = LocalDateTime.of(2020, 6, 14, 10, 0);
+            Price expected = buildPrice(
+                    BRAND,
+                    LocalDateTime.of(2020, 6, 14, 0, 0, 0),
+                    LocalDateTime.of(2020, 12, 31, 23, 59, 59),
+                    1,
+                    PRODUCT_ID,
+                    0,
+                    new BigDecimal("35.50"),
+                    CURRENCY
+            );
+            when(priceService.getApplicablePrice(searchDate, PRODUCT_ID, BRAND_ID))
+                    .thenReturn(Optional.of(expected));
+            mockMvc.perform(get("/api/v1/prices")
+                            .param("date", "2020-06-14T10:00:00")
+                            .param("productId", PRODUCT_ID.toString())
+                            .param("brandId", BRAND_ID.toString())
+                            .header("X-Request-ID", "req-1")
+                            .header("X-Correlation-ID", "corr-1")
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.product").value(PRODUCT_ID.intValue()))
+                    .andExpect(jsonPath("$.brand").value(BRAND))
+                    .andExpect(jsonPath("$.priceList").value(1))
+                    .andExpect(jsonPath("$.startDate").value("2020-06-14T00:00:00"))
+                    .andExpect(jsonPath("$.endDate").value("2020-12-31T23:59:59"))
+                    .andExpect(jsonPath("$.price").value(35.50))
+                    .andExpect(jsonPath("$.currency").value(CURRENCY));
+        }
+
+        @Test
+        @DisplayName("Test 2: 14/06 16:00")
+        void test2RequestAt16Pm14June() throws Exception {
+            final LocalDateTime searchDate = LocalDateTime.of(2020, 6, 14, 16, 0);
+            Price expected = buildPrice(
+                    BRAND,
+                    LocalDateTime.of(2020, 6, 14, 15, 0, 0),
+                    LocalDateTime.of(2020, 6, 14, 18, 30, 0),
+                    2,
+                    PRODUCT_ID,
+                    1,
+                    new BigDecimal("25.45"),
+                    CURRENCY
+            );
+            when(priceService.getApplicablePrice(searchDate, PRODUCT_ID, BRAND_ID))
+                    .thenReturn(Optional.of(expected));
+            mockMvc.perform(get("/api/v1/prices")
+                            .param("date", "2020-06-14T16:00:00")
+                            .param("productId", PRODUCT_ID.toString())
+                            .param("brandId", BRAND_ID.toString())
+                            .header("X-Request-ID", "req-1")
+                            .header("X-Correlation-ID", "corr-1")
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.product").value(PRODUCT_ID.intValue()))
+                    .andExpect(jsonPath("$.brand").value(BRAND))
+                    .andExpect(jsonPath("$.priceList").value(2))
+                    .andExpect(jsonPath("$.startDate").value("2020-06-14T15:00:00"))
+                    .andExpect(jsonPath("$.endDate").value("2020-06-14T18:30:00"))
+                    .andExpect(jsonPath("$.price").value(25.45))
+                    .andExpect(jsonPath("$.currency").value(CURRENCY));
+        }
+
+        @Test
+        @DisplayName("Test 3: 14/06 21:00")
+        void test3RequestAt21Pm14June() throws Exception {
+            final LocalDateTime searchDate = LocalDateTime.of(2020, 6, 14, 21, 0);
+            Price expected = buildPrice(
+                    BRAND,
+                    LocalDateTime.of(2020, 6, 14, 0, 0, 0),
+                    LocalDateTime.of(2020, 12, 31, 23, 59, 59),
+                    1,
+                    PRODUCT_ID,
+                    0,
+                    new BigDecimal("35.50"),
+                    CURRENCY
+            );
+            when(priceService.getApplicablePrice(searchDate, PRODUCT_ID, BRAND_ID))
+                    .thenReturn(Optional.of(expected));
+            mockMvc.perform(get("/api/v1/prices")
+                            .param("date", "2020-06-14T21:00:00")
+                            .param("productId", PRODUCT_ID.toString())
+                            .param("brandId", BRAND_ID.toString())
+                            .header("X-Request-ID", "req-1")
+                            .header("X-Correlation-ID", "corr-1")
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.product").value(PRODUCT_ID.intValue()))
+                    .andExpect(jsonPath("$.brand").value(BRAND))
+                    .andExpect(jsonPath("$.priceList").value(1))
+                    .andExpect(jsonPath("$.startDate").value("2020-06-14T00:00:00"))
+                    .andExpect(jsonPath("$.endDate").value("2020-12-31T23:59:59"))
+                    .andExpect(jsonPath("$.price").value(35.50))
+                    .andExpect(jsonPath("$.currency").value(CURRENCY));
+        }
+
+        @Test
+        @DisplayName("Test 4: 15/06 10:00")
+        void test4RequestAt10Am15June() throws Exception {
+            final LocalDateTime searchDate = LocalDateTime.of(2020, 6, 15, 10, 0);
+            Price expected = buildPrice(
+                    BRAND,
+                    LocalDateTime.of(2020, 6, 15, 0, 0, 0),
+                    LocalDateTime.of(2020, 6, 15, 11, 0, 0),
+                    3,
+                    PRODUCT_ID,
+                    1,
+                    new BigDecimal("30.50"),
+                    CURRENCY
+            );
+            when(priceService.getApplicablePrice(searchDate, PRODUCT_ID, BRAND_ID))
+                    .thenReturn(Optional.of(expected));
+            mockMvc.perform(get("/api/v1/prices")
+                            .param("date", "2020-06-15T10:00:00")
+                            .param("productId", PRODUCT_ID.toString())
+                            .param("brandId", BRAND_ID.toString())
+                            .header("X-Request-ID", "req-1")
+                            .header("X-Correlation-ID", "corr-1")
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.product").value(PRODUCT_ID.intValue()))
+                    .andExpect(jsonPath("$.brand").value(BRAND))
+                    .andExpect(jsonPath("$.priceList").value(3))
+                    .andExpect(jsonPath("$.startDate").value("2020-06-15T00:00:00"))
+                    .andExpect(jsonPath("$.endDate").value("2020-06-15T11:00:00"))
+                    .andExpect(jsonPath("$.price").value(30.50))
+                    .andExpect(jsonPath("$.currency").value(CURRENCY));
+        }
+
+        @Test
+        @DisplayName("Test 5: 16/06 21:00")
+        void test5RequestAt21Pm16June() throws Exception {
+            final LocalDateTime searchDate = LocalDateTime.of(2020, 6, 16, 21, 0);
+            Price expected = buildPrice(
+                    BRAND,
+                    LocalDateTime.of(2020, 6, 15, 16, 0, 0),
+                    LocalDateTime.of(2020, 12, 31, 23, 59, 59),
+                    4,
+                    PRODUCT_ID,
+                    1,
+                    new BigDecimal("38.95"),
+                    CURRENCY
+            );
+            when(priceService.getApplicablePrice(searchDate, PRODUCT_ID, BRAND_ID))
+                    .thenReturn(Optional.of(expected));
+            mockMvc.perform(get("/api/v1/prices")
+                            .param("date", "2020-06-16T21:00:00")
+                            .param("productId", PRODUCT_ID.toString())
+                            .param("brandId", BRAND_ID.toString())
+                            .header("X-Request-ID", "req-1")
+                            .header("X-Correlation-ID", "corr-1")
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.product").value(PRODUCT_ID.intValue()))
+                    .andExpect(jsonPath("$.brand").value(BRAND))
+                    .andExpect(jsonPath("$.priceList").value(4))
+                    .andExpect(jsonPath("$.startDate").value("2020-06-15T16:00:00"))
+                    .andExpect(jsonPath("$.endDate").value("2020-12-31T23:59:59"))
+                    .andExpect(jsonPath("$.price").value(38.95))
+                    .andExpect(jsonPath("$.currency").value(CURRENCY));
+        }
+    }
+
+    @Test
+    void whenPriceNotFoundThenReturns404() throws Exception {
+        final LocalDateTime date = LocalDateTime.of(2020, 6, 17, 10, 0);
+        when(priceService.getApplicablePrice(date, PRODUCT_ID, BRAND_ID))
+                .thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/v1/prices")
+                        .param("date", "2020-06-17T10:00:00")
+                        .param("productId", PRODUCT_ID.toString())
+                        .param("brandId", BRAND_ID.toString())
+                        .header("X-Request-ID", "abc123")
+                        .header("X-Correlation-ID", "trace-001")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("NOT_FOUND"));
+    }
+}
+
