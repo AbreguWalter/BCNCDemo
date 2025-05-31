@@ -9,22 +9,28 @@ API REST construida como solución a la prueba técnica de BCNC Group. Permite c
 
 ## ⚙️ Tecnologías utilizadas y justificación
 
-| Tecnología                      | Justificación                                                                 |
-|-------------------------------|------------------------------------------------------------------------------|
-| Java 17                        | Versión moderna, estable y compatible con el ecosistema Spring.             |
-| Spring Boot 3.5.0              | Framework robusto para construir APIs REST de forma rápida y segura.       |
-| Spring Data JPA                | Acceso a datos declarativo usando entidades y repositorios.                 |
-| H2 Database (in-memory)        | Base de datos embebida ideal para testing y validación de lógica.           |
-| Lombok                         | Reduce el código boilerplate (constructores, getters, etc.).                |
-| Checkstyle + custom rules      | Asegura estilo de código uniforme y legible.                                |
-| JaCoCo                         | Generación de reporte de cobertura de tests.                                |
-| Springdoc OpenAPI 3.0          | Documentación interactiva vía Swagger UI.                                   |
-| JUnit 5 + Mockito              | Frameworks modernos y populares para testing unitario y de integración.     |
-| Gradle                         | Sistema de construcción flexible y rápido para gestionar dependencias.      |
+El proyecto utiliza un stack moderno pensado para máxima mantenibilidad y facilidad de pruebas.  
+Cada tecnología fue seleccionada para cumplir un rol concreto y aportar valor al desarrollo profesional de APIs:
+
+
+| Tecnología                | Justificación                                                                 |
+|---------------------------|------------------------------------------------------------------------------|
+| Java 17                   | Versión moderna, estable y compatible con el ecosistema Spring.             |
+| Spring Boot 3.5.0         | Framework robusto para construir APIs REST de forma rápida y segura.       |
+| Spring Data JPA           | Acceso a datos declarativo usando entidades y repositorios.                 |
+| H2 Database (in-memory)   | Base de datos embebida ideal para testing y validación de lógica.           |
+| Lombok                    | Reduce el código boilerplate (constructores, getters, etc.).                |
+| Checkstyle + custom rules | Asegura estilo de código uniforme y legible.                                |
+| JaCoCo                    | Generación de reporte de cobertura de tests.                                |
+| Springdoc OpenAPI 3.0     | Documentación interactiva vía Swagger UI.                                   |
+| JUnit 5 + Mockito         | Frameworks modernos y populares para testing unitario y de integración.     |
+| Gradle 8.12               | Sistema de construcción flexible y rápido para gestionar dependencias.      |
 
 ---
 
 ## 🧠 Justificación de decisiones técnicas
+
+Las principales decisiones técnicas se orientaron a la mantenibilidad, facilidad de pruebas y desacoplamiento:
 
 - **Arquitectura hexagonal**: permite separar completamente el dominio de la infraestructura. Esto facilita pruebas, extensibilidad y mantenibilidad.
 - **DTOs y mappers explícitos**: desacoplan el modelo interno del contrato externo, facilitando el control del API.
@@ -36,6 +42,10 @@ API REST construida como solución a la prueba técnica de BCNC Group. Permite c
 ---
 
 ## 🧱 Explicación de la arquitectura
+
+La solución sigue una **arquitectura hexagonal (Ports & Adapters)**, que desacopla estrictamente la lógica de negocio (dominio y casos de uso) de los detalles técnicos (API, repositorios, mapeadores, validaciones).
+
+Este diseño promueve el aislamiento de las reglas de negocio, permite el testing sencillo de cada componente y facilita la futura integración de nuevas fuentes de datos o interfaces (REST, CLI, mensajería, etc.), sin afectar el core del dominio.
 
 El proyecto está dividido en 3 grandes capas siguiendo **arquitectura hexagonal**:
 ```
@@ -118,9 +128,23 @@ Consulta precio aplicable
 - `X-Correlation-ID` (requerido) - trace-001
 
 ## 📌 Notas técnicas
+
+#### Ejemplo de respuesta `200`
+```json
+{
+  "product": "Product 35455",
+  "brand": "ZARA",
+  "priceList": "Afternoon promo",
+  "startDate": "2020-06-14T15:00:00",
+  "endDate": "2020-06-14T18:30:00",
+  "price": 25.45,
+  "currency": "EUR",
+  }
+```
+
 Las respuestas de error siguen el estándar:
 
-```
+```json
 {
     "message": "No applicable price found.",
     "timestamp": "2025-05-23T22:18:42.9828077-05:00",
