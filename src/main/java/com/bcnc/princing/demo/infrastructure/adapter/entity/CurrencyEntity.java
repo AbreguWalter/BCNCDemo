@@ -1,4 +1,4 @@
-package com.bcnc.princing.demo.infrastructure.entity;
+package com.bcnc.princing.demo.infrastructure.adapter.entity;
 
 import java.time.LocalDateTime;
 
@@ -14,22 +14,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "price_lists")
+@Table(name = "currencies")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PriceListEntity {
-
+public class CurrencyEntity {
     @Id
-    private Integer id;
+    private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
-    @Column
-    private String description;
+    @Column(length = 5)
+    private String symbol;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
