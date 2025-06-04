@@ -1,4 +1,4 @@
-package com.bcnc.princing.demo.infrastructure.entity;
+package com.bcnc.princing.demo.infrastructure.adapter.entity;
 
 import java.time.LocalDateTime;
 
@@ -14,18 +14,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "products")
+@Table(name = "price_lists")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductEntity {
+public class PriceListEntity {
 
     @Id
-    private Long id;
+    private Integer id;
 
-    @Column(nullable = false)
+    @Column
     private String name;
 
     @Column

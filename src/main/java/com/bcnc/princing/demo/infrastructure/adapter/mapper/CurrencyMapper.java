@@ -1,9 +1,9 @@
-package com.bcnc.princing.demo.infrastructure.mapper;
+package com.bcnc.princing.demo.infrastructure.adapter.mapper;
 
 import org.springframework.stereotype.Component;
 
 import com.bcnc.princing.demo.domain.model.Currency;
-import com.bcnc.princing.demo.infrastructure.entity.CurrencyEntity;
+import com.bcnc.princing.demo.infrastructure.adapter.entity.CurrencyEntity;
 
 @Component
 public class CurrencyMapper {

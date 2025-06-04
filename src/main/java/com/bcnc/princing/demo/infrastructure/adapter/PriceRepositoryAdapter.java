@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import com.bcnc.princing.demo.domain.model.Price;
 import com.bcnc.princing.demo.domain.port.PriceRepository;
+import com.bcnc.princing.demo.infrastructure.adapter.mapper.PriceMapper;
 import com.bcnc.princing.demo.infrastructure.adapter.repository.SpringDataPriceRepository;
-import com.bcnc.princing.demo.infrastructure.mapper.PriceMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

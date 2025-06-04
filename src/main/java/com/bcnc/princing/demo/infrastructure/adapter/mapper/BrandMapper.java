@@ -1,9 +1,9 @@
-package com.bcnc.princing.demo.infrastructure.mapper;
+package com.bcnc.princing.demo.infrastructure.adapter.mapper;
 
 import org.springframework.stereotype.Component;
 
 import com.bcnc.princing.demo.domain.model.Brand;
-import com.bcnc.princing.demo.infrastructure.entity.BrandEntity;
+import com.bcnc.princing.demo.infrastructure.adapter.entity.BrandEntity;
 
 @Component
 public class BrandMapper {

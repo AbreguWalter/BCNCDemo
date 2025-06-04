@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import com.bcnc.princing.demo.domain.model.Brand;
 import com.bcnc.princing.demo.domain.port.BrandRepository;
+import com.bcnc.princing.demo.infrastructure.adapter.mapper.BrandMapper;
 import com.bcnc.princing.demo.infrastructure.adapter.repository.SpringDataBrandRepository;
-import com.bcnc.princing.demo.infrastructure.mapper.BrandMapper;
 
 import lombok.RequiredArgsConstructor;
 

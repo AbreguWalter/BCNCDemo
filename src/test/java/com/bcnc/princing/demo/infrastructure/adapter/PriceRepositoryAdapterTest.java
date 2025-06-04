@@ -8,8 +8,8 @@ import org.mockito.Mockito;
 
 import com.bcnc.princing.demo.domain.model.Price;
 import com.bcnc.princing.demo.infrastructure.adapter.repository.SpringDataPriceRepository;
-import com.bcnc.princing.demo.infrastructure.entity.PriceEntity;
-import com.bcnc.princing.demo.infrastructure.mapper.PriceMapper;
+import com.bcnc.princing.demo.infrastructure.adapter.entity.PriceEntity;
+import com.bcnc.princing.demo.infrastructure.adapter.mapper.PriceMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

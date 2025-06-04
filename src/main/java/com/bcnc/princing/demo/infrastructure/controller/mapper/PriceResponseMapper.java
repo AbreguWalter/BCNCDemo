@@ -1,4 +1,4 @@
-package com.bcnc.princing.demo.infrastructure.mapper;
+package com.bcnc.princing.demo.infrastructure.controller.mapper;
 
 import org.springframework.stereotype.Component;
 

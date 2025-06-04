@@ -1,9 +1,9 @@
-package com.bcnc.princing.demo.infrastructure.mapper;
+package com.bcnc.princing.demo.infrastructure.adapter.mapper;
 
 import org.springframework.stereotype.Component;
 
 import com.bcnc.princing.demo.domain.model.Product;
-import com.bcnc.princing.demo.infrastructure.entity.ProductEntity;
+import com.bcnc.princing.demo.infrastructure.adapter.entity.ProductEntity;
 
 @Component
 public class ProductMapper {
