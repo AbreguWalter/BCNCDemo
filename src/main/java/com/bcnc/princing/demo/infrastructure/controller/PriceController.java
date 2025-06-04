@@ -16,7 +16,7 @@ import com.bcnc.princing.demo.application.service.PriceService;
 import com.bcnc.princing.demo.config.NotFoundException;
 import com.bcnc.princing.demo.domain.model.Price;
 import com.bcnc.princing.demo.infrastructure.controller.dto.PriceResponse;
-import com.bcnc.princing.demo.infrastructure.mapper.PriceResponseMapper;
+import com.bcnc.princing.demo.infrastructure.controller.mapper.PriceResponseMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

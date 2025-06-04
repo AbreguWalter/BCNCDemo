@@ -1,9 +1,9 @@
-package com.bcnc.princing.demo.infrastructure.mapper;
+package com.bcnc.princing.demo.infrastructure.adapter.mapper;
 
 import org.springframework.stereotype.Component;
 
 import com.bcnc.princing.demo.domain.model.PriceList;
-import com.bcnc.princing.demo.infrastructure.entity.PriceListEntity;
+import com.bcnc.princing.demo.infrastructure.adapter.entity.PriceListEntity;
 
 @Component
 public class PriceListMapper {

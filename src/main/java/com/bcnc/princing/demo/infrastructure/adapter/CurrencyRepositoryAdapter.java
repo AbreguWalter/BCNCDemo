@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import com.bcnc.princing.demo.domain.model.Currency;
 import com.bcnc.princing.demo.domain.port.CurrencyRepository;
+import com.bcnc.princing.demo.infrastructure.adapter.mapper.CurrencyMapper;
 import com.bcnc.princing.demo.infrastructure.adapter.repository.SpringDataCurrencyRepository;
-import com.bcnc.princing.demo.infrastructure.mapper.CurrencyMapper;
 
 import lombok.RequiredArgsConstructor;
 

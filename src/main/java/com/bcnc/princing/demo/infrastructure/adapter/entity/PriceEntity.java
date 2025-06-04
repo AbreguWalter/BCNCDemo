@@ -1,4 +1,4 @@
-package com.bcnc.princing.demo.infrastructure.entity;
+package com.bcnc.princing.demo.infrastructure.adapter.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

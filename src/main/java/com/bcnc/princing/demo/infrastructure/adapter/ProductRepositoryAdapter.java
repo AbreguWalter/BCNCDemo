@@ -6,9 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import com.bcnc.princing.demo.domain.model.Product;
 import com.bcnc.princing.demo.domain.port.ProductRepository;
+import com.bcnc.princing.demo.infrastructure.adapter.entity.ProductEntity;
+import com.bcnc.princing.demo.infrastructure.adapter.mapper.ProductMapper;
 import com.bcnc.princing.demo.infrastructure.adapter.repository.SpringDataProductRepository;
-import com.bcnc.princing.demo.infrastructure.entity.ProductEntity;
-import com.bcnc.princing.demo.infrastructure.mapper.ProductMapper;
 
 import lombok.RequiredArgsConstructor;
 

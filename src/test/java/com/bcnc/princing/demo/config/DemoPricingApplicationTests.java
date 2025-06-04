@@ -1,4 +1,4 @@
-package com.bcnc.princing.demo;
+package com.bcnc.princing.demo.config;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
