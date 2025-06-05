@@ -1,8 +1,8 @@
-package com.bcnc.princing.demo.application.serviceImpl;
+package com.bcnc.princing.demo.application.usecaseImpl;
 
 import org.springframework.stereotype.Service;
 
-import com.bcnc.princing.demo.application.service.PriceListService;
+import com.bcnc.princing.demo.application.usecase.PriceListService;
 import com.bcnc.princing.demo.domain.model.PriceList;
 import com.bcnc.princing.demo.domain.port.PriceListRepository;
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bcnc.princing.demo.application.service.PriceService;
+import com.bcnc.princing.demo.application.usecase.PriceService;
 import com.bcnc.princing.demo.config.NotFoundException;
 import com.bcnc.princing.demo.domain.model.Price;
 import com.bcnc.princing.demo.infrastructure.controller.dto.PriceResponse;

@@ -1,8 +1,8 @@
-package com.bcnc.princing.demo.application.serviceImpl;
+package com.bcnc.princing.demo.application.usecaseImpl;
 
 import org.springframework.stereotype.Service;
 
-import com.bcnc.princing.demo.application.service.BrandService;
+import com.bcnc.princing.demo.application.usecase.BrandService;
 import com.bcnc.princing.demo.domain.model.Brand;
 import com.bcnc.princing.demo.domain.port.BrandRepository;
 
