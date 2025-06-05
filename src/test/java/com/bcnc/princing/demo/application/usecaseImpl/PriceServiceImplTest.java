@@ -1,4 +1,4 @@
-package com.bcnc.princing.demo.application.serviceImpl;
+package com.bcnc.princing.demo.application.usecaseImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -8,10 +8,10 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.bcnc.princing.demo.application.service.BrandService;
-import com.bcnc.princing.demo.application.service.CurrencyService;
-import com.bcnc.princing.demo.application.service.PriceListService;
-import com.bcnc.princing.demo.application.service.ProductService;
+import com.bcnc.princing.demo.application.usecase.BrandService;
+import com.bcnc.princing.demo.application.usecase.CurrencyService;
+import com.bcnc.princing.demo.application.usecase.PriceListService;
+import com.bcnc.princing.demo.application.usecase.ProductService;
 import com.bcnc.princing.demo.domain.model.Price;
 import com.bcnc.princing.demo.domain.port.PriceRepository;
 

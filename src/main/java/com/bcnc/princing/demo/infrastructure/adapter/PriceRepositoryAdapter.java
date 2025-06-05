@@ -19,7 +19,7 @@ public class PriceRepositoryAdapter implements PriceRepository {
 
     private final SpringDataPriceRepository jpaRepo;
 
-    private final PriceMapper mapper; // Asumiendo que tienes un PriceMapper
+    private final PriceMapper mapper;
 
     @Override
     public List<Price> findByProductIdAndBrandId(Long productId, Long brandId) {

@@ -1,4 +1,4 @@
-package com.bcnc.princing.demo.application.service;
+package com.bcnc.princing.demo.application.usecase;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
